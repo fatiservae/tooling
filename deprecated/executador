@@ -1,0 +1,22 @@
+#!/bin/bash
+# by Jefferson T. 
+# telegrão @stalinCCCP
+while IFS= read -r line
+do
+	file_ext=$( echo $line | rev | cut -d . -f 1 | rev)
+	tipo=$(awk -v EXT=$file_ext 'BEGIN{IGNORECASE=1} $0 ~ EXT {print $1}' ~/.extensoes_o)
+	[[ "$tipo" == 'docs' ]] &&  docs+=( "$line")
+	[[ "$tipo" == 'images' ]] &&  images+=( "$line")
+	[[ "$tipo" == 'media' ]] &&  media+=( "$line")
+	[[ "$tipo" == 'office' ]] &&  office+=( "$line")
+	[[ "$tipo" == 'internet' ]] &&  internet+=( "$line")
+	[[ "$tipo" == 'text' ]] &&  text+=( "$line")
+	[[ "$tipo" == '' ]] &&  text+=( "$line")
+done < '/home/jefferson/.files'
+IFS=$'\n'
+[[ "${docs[*]}" == '' ]] || $(awk '/docs/ {print $2}' ~/.extensoes_o) ${docs[*]} &
+[[ "${media[*]}" == '' ]] || $(awk '/media/ {print $2}' ~/.extensoes_o) ${media[*]} &
+[[ "${office[*]}" == '' ]] || $(awk '/office/ {print $2}' ~/.extensoes_o) ${office[*]} &
+[[ "${images[*]}" == '' ]] || $(awk '/images/ {print $2}' ~/.extensoes_o) ${images[*]} &
+[[ "${internet[*]}" == '' ]] || $(awk '/internet/ {print $2}' ~/.extensoes_o) ${internet[*]} &
+[[ "${text[*]}" == '' ]] || alacritty -e "$(awk '/text/ {print $2}' ~/.extensoes_o)" ${text[*]} &
