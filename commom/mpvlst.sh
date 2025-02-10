@@ -1,29 +1,28 @@
 #!/bin/sh
-# By Jefferson T. @ 2023
-#
-# Um tocador em mpv para linha de comando.
 
 ajuda() {
   printf ' Ajuda:\n'
-  printf ' --play          Reproduzir de xclip\n'
-  printf ' --cmd           Reproduzir de cmd\n'
-  printf ' --fuzzy         Adicionar com fzf\n'
-  printf ' --clear         Limpar\n'
+  printf ' --play\t\t\tReproduzir de xclip\n'
+  printf ' --play [resolution]\t\tEscolha resolução\n'
+  printf ' --cmd\t\t\tReproduzir de cmd\n'
+  printf ' --fuzzy\t\t\tAdicionar com fzf\n'
+  printf ' --clear\t\t\tLimpar\n'
 }
 
 # Ideia: colocar o mpvlst-active como variavel de valor do PID para ser usado no --kill
 
 [ -z "$1" ] && ajuda && exit
 touch /tmp/mpvlst-active
-workDir="$(pwd)";
+#workDir="$(pwd)";
 
 case "$1" in 
   --play)
+    [ -z "$1" ] && ajuda && exit;
     if [ "$(< /tmp/mpvlst-active)" == "true" ]; then
       echo "{ \"command\": [\"loadfile\", \"$(xclip -o -selection clipboard)\", \"append\"] }" |  socat - /tmp/mpvsocket
     else
       echo "true" > /tmp/mpvlst-active;
-      mpv --ytdl-format="bestvideo[height<=720]+bestaudio/best" --input-ipc-server=/tmp/mpvsocket "$(xclip -o -selection clipboard)" &&
+      mpv --ytdl-format="bestvideo[height<="$2"]+bestaudio/best" --input-ipc-server=/tmp/mpvsocket "$(xclip -o -selection clipboard)" &&
       rm /tmp/mpv*
     fi
   ;; 
